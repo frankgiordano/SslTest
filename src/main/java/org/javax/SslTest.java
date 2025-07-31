@@ -3,30 +3,23 @@ package org.javax;
 import javax.net.ssl.*;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.security.*;
-import java.security.cert.CertificateException;
+import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class SslTest {
 
-    public static void main(String[] args) throws KeyStoreException, IOException,
-            NoSuchAlgorithmException, UnrecoverableKeyException, KeyManagementException {
+    public static void main(String[] args) throws Exception {
 
         // Load the PKCS12 keystore
         KeyStore keyStore = KeyStore.getInstance("PKCS12");
-        try (FileInputStream fis = new FileInputStream("C:\\cert.p12")) {
+        try (FileInputStream fis = new FileInputStream("C:\\Users\\fg892105\\CA31.p12")) {
             keyStore.load(fis, "PRAGUE12".toCharArray());
-        } catch (CertificateException | IOException | NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
         }
 
         // Init KeyManager with client certificate
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
         kmf.init(keyStore, "PRAGUE12".toCharArray());
 
         // Trust all server certs (like --insecure)
@@ -55,7 +48,7 @@ public class SslTest {
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
 
         // Open connection
-        URL url = new URL("https://xxxxx.xxxxx.xxxxx.net:1443/zosmf/restjobs/jobs?owner=*&jobid=JOB17099");
+        URL url = new URL("https://usilCA31.lvn.broadcom.net:1443/zosmf/restjobs/jobs?owner=*&jobid=JOB17099");
         HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
         con.setRequestMethod("GET");
         con.setRequestProperty("X-CSRF-ZOSMF-HEADER", "true");
@@ -71,9 +64,9 @@ public class SslTest {
             String inputLine;
             while ((inputLine = in.readLine()) != null) {
                 System.out.println(inputLine);
-
             }
         }
         con.disconnect();
     }
+    
 }
