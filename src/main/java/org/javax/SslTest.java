@@ -1,10 +1,13 @@
-package org.javax;
+package org.unirest;
 
-import javax.net.ssl.*;
-import java.io.BufferedReader;
+import kong.unirest.core.HttpResponse;
+import kong.unirest.core.Unirest;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 
@@ -41,32 +44,26 @@ public class SslTest {
         SSLContext sc = SSLContext.getInstance("TLS");
         sc.init(kmf.getKeyManagers(), trustAllCerts, new java.security.SecureRandom());
 
-        // Set default SSL socket factory
-        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+        // Configure Unirest with SSL context
+        Unirest.config()
+                .sslContext(sc)
+                .verifySsl(true);
 
-        // Disable hostname verification (like --insecure)
-        HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
+        // Make an Unirest GET request
+        HttpResponse<String> response = Unirest.get("https://usilCA31.lvn.broadcom.net:1443/zosmf/restjobs/jobs")
+                .queryString("owner", "*")
+                .queryString("jobid", "JOB17099")
+                .header("X-CSRF-ZOSMF-HEADER", "true")
+                .header("Content-Type", "application/json")
+                .asString();
 
-        // Open connection
-        URL url = new URL("https://usilCA31.lvn.broadcom.net:1443/zosmf/restjobs/jobs?owner=*&jobid=JOB17099");
-        HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-        con.setRequestMethod("GET");
-        con.setRequestProperty("X-CSRF-ZOSMF-HEADER", "true");
-        con.setRequestProperty("Content-Type", "application/json");
+        // Print response details
+        System.out.println("Response Code: " + response.getStatus());
+        System.out.println("Status Message: " + response.getStatusText());
+        System.out.println("Response Body: " + response.getBody());
 
-        // Read response
-        int responseCode = con.getResponseCode();
-        String statusMessage = con.getResponseMessage();
-        System.out.println("Response Code: " + responseCode);
-        System.out.println("Status Message: " + statusMessage);
-
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                System.out.println(inputLine);
-            }
-        }
-        con.disconnect();
+        // Clean up Unirest
+        Unirest.shutDown();
     }
-    
+
 }
