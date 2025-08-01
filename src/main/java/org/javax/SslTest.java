@@ -8,8 +8,6 @@ import java.net.URL;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class SslTest {
 
     public static void main(String[] args) throws Exception {
