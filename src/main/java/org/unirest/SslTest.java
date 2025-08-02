@@ -52,8 +52,7 @@ public class SslTest {
 
             // Configure Unirest with SSL context
             Unirest.config()
-                    .sslContext(sslContext)
-                    .verifySsl(true);
+                    .sslContext(sslContext);
 
             // Make an Unirest GET request
             HttpResponse<String> response = Unirest.get("https://xxxxx.xxxxx.xxxxx.net:1443/zosmf/restjobs/jobs")
